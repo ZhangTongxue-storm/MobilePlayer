@@ -17,6 +17,7 @@ public class LocalVideoPager extends BaseFragment {
     @Override
     protected void bindView() {
 
+
     }
 
     @Override
