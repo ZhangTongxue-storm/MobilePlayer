@@ -1,0 +1,20 @@
+package com.storm.mobileplayer.activity;
+
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+
+import com.storm.mobileplayer.R;
+
+public class SplashActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_splash);
+        initView();
+    }
+
+    private void initView() {
+
+    }
+}
