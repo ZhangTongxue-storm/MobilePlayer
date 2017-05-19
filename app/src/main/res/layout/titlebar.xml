@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.storm.mobileplayer.custom.TitleBar xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:background="@color/bg_titlebar"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/iv_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:background="@drawable/ic_topbanner_logo" />
+
+
+    <TextView
+        android:id="@+id/tv_serach"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_weight="1"
+        android:background="@drawable/bg_serach_selector"
+        android:clickable="true"
+        android:drawableLeft="@drawable/serach_icon_selector"
+        android:drawablePadding="3dp"
+        android:gravity="center_vertical"
+        android:text="全网搜索"
+        android:textColor="@drawable/serach_textcolor_selector"
+        android:textSize="14sp"
+
+        />
+
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_game"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:drawableLeft="@drawable/ic_topbanner_game"
+
+            />
+
+        <View
+            android:id="@+id/game_hot"
+            android:layout_width="4dp"
+            android:layout_height="4dp"
+            android:layout_alignRight="@id/tv_game"
+            android:background="@drawable/game_hot" />
+
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/tv_record"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="8dp"
+        android:background="@drawable/ic_topbanner_record" />
+
+</com.storm.mobileplayer.custom.TitleBar>
