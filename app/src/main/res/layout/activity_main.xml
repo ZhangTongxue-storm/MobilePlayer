@@ -3,10 +3,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.storm.mobileplayer.MainActivity">
 
-    <include layout="@layout/titlebar"/>
+    <include layout="@layout/titlebar" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
 
+    <include
+        android:id="@+id/rg_navigation"
+        layout="@layout/navigationbar" />
 
 </LinearLayout>
