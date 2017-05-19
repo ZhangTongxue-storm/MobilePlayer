@@ -84,15 +84,14 @@ public class MainActivity extends AppCompatActivity {
      */
     private void addOrHideFragment(BaseFragment targetFragment) {
         if (currentFragment != targetFragment) {
-            //开启fragment
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             if (!targetFragment.isAdded()) {
+                // 没有添加
                 if (currentFragment != null) {
                     ft.hide(currentFragment);
                 }
                 ft.add(R.id.fl_main, targetFragment);
             } else {
-                // 当前添加过
                 if (currentFragment != null) {
                     ft.hide(currentFragment);
                 }
@@ -100,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
             ft.commit();
-
             currentFragment = targetFragment;
         }
 
