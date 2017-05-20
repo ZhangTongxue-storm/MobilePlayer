@@ -16,8 +16,11 @@ import android.widget.TextView;
 import android.widget.VideoView;
 
 import com.storm.mobileplayer.R;
+import com.storm.mobileplayer.bean.LocalVideoBean;
 import com.storm.mobileplayer.utils.LogUtils;
 import com.storm.mobileplayer.utils.TimeUtils;
+
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -59,6 +62,8 @@ public class SystemVideoActivity extends AppCompatActivity {
 
     private boolean isPlayer = true;            //当前视频是否播放
     private boolean isFullScreen = false;       // 当前视频是否全屏
+    private ArrayList<LocalVideoBean> videoLists;
+
     private TimeUtils timeUtils;
     private BroadcastReceiver batteryReceiver;
 
@@ -75,8 +80,14 @@ public class SystemVideoActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        Uri uri = getIntent().getData();
-        videoPlayer.setVideoURI(uri);
+
+        videoLists = (ArrayList<LocalVideoBean>) getIntent().getSerializableExtra("videoList");
+        int position = getIntent().getIntExtra("position", -1);
+        if (position != -1) {
+            videoPlayer.setVideoURI(Uri.parse(videoLists.get(position).getData()));
+            videoPlayer.start();
+        }
+
         timeUtils = new TimeUtils();
 
         // 设置电池的状态
@@ -137,6 +148,7 @@ public class SystemVideoActivity extends AppCompatActivity {
     }
 
     private void setListener() {
+
 
         btnExit.setOnClickListener(new View.OnClickListener() {
             @Override

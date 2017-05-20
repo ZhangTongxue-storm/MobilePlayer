@@ -1,12 +1,14 @@
 package com.storm.mobileplayer.bean;
 
+import java.io.Serializable;
+
 /**
  * Created by Storm on 2017/5/19.
- *
+ * <p>
  * 本地视频的bean类
  */
 
-public class LocalVideoBean {
+public class LocalVideoBean implements Serializable {
 
     private String name; // 视频的名字
     private long duration;// 视屏的时长
