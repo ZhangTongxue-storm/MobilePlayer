@@ -25,7 +25,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="5dp"
-
                 android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:text="视频名称"
@@ -55,11 +54,13 @@
             android:orientation="horizontal">
 
             <Button
+                android:id="@+id/btn_voice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/voice_selector" />
 
             <SeekBar
+                android:id="@+id/sb_voice"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -71,6 +72,7 @@
                 android:thumb="@drawable/progress_thumb" />
 
             <Button
+                android:id="@+id/btn_switch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/swith_selector" />
@@ -78,89 +80,94 @@
     </LinearLayout>
 
 
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:orientation="vertical"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_height="wrap_content">
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:background="@drawable/bg_player_bottom_seekbar"
             android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:layout_height="wrap_content">
+            android:orientation="horizontal">
 
 
             <TextView
-                android:textColor="@color/textcolor_controller_top"
+                android:id="@+id/tv_duration"
                 android:layout_width="wrap_content"
-                android:text="进度"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:padding="3dp"
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp"
-                />
+                android:padding="3dp"
+                android:text="进度"
+                android:textColor="@color/textcolor_controller_top"
+                android:textSize="14sp" />
+
             <SeekBar
+                android:id="@+id/sb_duration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:progressDrawable="@drawable/pd_progress_voice"
-                android:minHeight="3dp"
                 android:maxHeight="3dp"
-                android:thumb="@drawable/progress_thumb"
-                />
+                android:minHeight="3dp"
+                android:progressDrawable="@drawable/pd_progress_voice"
+                android:thumb="@drawable/progress_thumb" />
+
             <TextView
-                android:textColor="@color/textcolor_controller_top"
+                android:id="@+id/tv_video_time"
                 android:layout_width="wrap_content"
-                android:text="总时间"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp"
-                android:textSize="14sp"
                 android:padding="3dp"
-                />
+                android:text="总时间"
+                android:textColor="@color/textcolor_controller_top"
+                android:textSize="14sp" />
         </LinearLayout>
 
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:background="@drawable/bg_player_bottom_control"
-            android:layout_height="wrap_content">
+            android:orientation="horizontal">
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/exit_selector"
-            />
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/pre_selector"
-            />
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/play_selector"
-            />
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/next_selector"
-            />
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/full_screen_selector"
-            />
+            <Button
+                android:id="@+id/btn_exit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/exit_selector" />
+
+            <Button
+                android:id="@+id/btn_pre"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/pre_selector" />
+
+            <Button
+                android:id="@+id/btn_pause"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/pause_selector" />
+
+            <Button
+                android:id="@+id/btn_next"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/next_selector" />
+
+            <Button
+                android:id="@+id/btn_fullscreen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/full_screen_selector" />
 
 
         </LinearLayout>
