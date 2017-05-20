@@ -167,7 +167,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@drawable/full_screen_selector" />
+                android:background="@drawable/unfull_screen_selector" />
 
 
         </LinearLayout>
