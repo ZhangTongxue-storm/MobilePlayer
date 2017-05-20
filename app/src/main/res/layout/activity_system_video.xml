@@ -7,13 +7,12 @@
     tools:context="com.storm.mobileplayer.activity.SystemVideoActivity">
 
 
-    <include layout="@layout/mediaplayer_top"/>
 
     <VideoView
         android:layout_centerInParent="true"
         android:id="@+id/video_player"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
+    <include layout="@layout/mediaplayer_top"/>
 
 </RelativeLayout>
