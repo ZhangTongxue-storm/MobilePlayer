@@ -1,6 +1,7 @@
 package com.storm.mobileplayer.fragment;
 
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
@@ -9,10 +10,12 @@ import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.storm.mobileplayer.R;
+import com.storm.mobileplayer.activity.SystemVideoActivity;
 import com.storm.mobileplayer.adapter.LocalVideoAdapter;
 import com.storm.mobileplayer.base.BaseFragment;
 import com.storm.mobileplayer.bean.LocalVideoBean;
@@ -73,7 +76,22 @@ public class LocalVideoPager extends BaseFragment {
     protected void initData() {
         setDatas();
         adapter = new LocalVideoAdapter(mContext);
+        setListener();
 
+
+    }
+
+    private void setListener() {
+        lvLocalVideo.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                LocalVideoBean item = (LocalVideoBean) adapter.getItem(position);
+
+                Intent intent = new Intent(mContext,SystemVideoActivity.class);
+                intent.setDataAndType(Uri.parse(item.getData()), "video/*");
+                startActivity(intent);
+            }
+        });
 
     }
 
