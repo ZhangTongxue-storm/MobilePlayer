@@ -28,11 +28,6 @@
             android:configChanges="keyboardHidden|screenSize|orientation"
             android:screenOrientation="landscape"
             android:theme="@style/NoTitleTheme" />
-
-        <receiver android:name=".receiver.BatteryReceiver">
-
-
-        </receiver>
     </application>
 
 </manifest>
