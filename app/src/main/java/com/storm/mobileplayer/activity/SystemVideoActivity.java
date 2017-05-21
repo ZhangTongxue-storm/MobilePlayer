@@ -10,9 +10,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +37,8 @@ public class SystemVideoActivity extends AppCompatActivity {
     public static final String TAG = "SystemVideoActivity";
 
     public static final int PROGRESS = 1;
+
+    public static final int HIDE_MEDIACONTROLLER = 2;
 
     @BindView(R.id.video_player)
     VideoView videoPlayer;
@@ -65,14 +70,24 @@ public class SystemVideoActivity extends AppCompatActivity {
     Button btnNext;
     @BindView(R.id.btn_fullscreen)
     Button btnFullscreen;
+    @BindView(R.id.ll_top)
+    LinearLayout llTop;
+    @BindView(R.id.ll_bottom)
+    LinearLayout llBottom;
 
     private boolean isPlayer = true;            //当前视频是否播放
     private boolean isFullScreen = false;       // 当前视频是否全屏
+    private boolean isShowController = false; // 是否隐藏控制面板
+
     private ArrayList<LocalVideoBean> videoLists;
 
     private TimeUtils timeUtils;
     private BroadcastReceiver batteryReceiver;
     private int position;
+
+    //注冊手势识别器
+    private GestureDetector mDetector;
+
 
     private Handler mHandler = new Handler() {
 
@@ -88,11 +103,20 @@ public class SystemVideoActivity extends AppCompatActivity {
                     tvSystemTime.setText(timeUtils.getSystemTime());
 
                     sendEmptyMessageDelayed(PROGRESS, 1000);
+
                     LogUtils.d("循环发送消息");
+                    break;
+                case HIDE_MEDIACONTROLLER:
+
+                    //隐藏控制面板
+                    hideMediaController();
+
                     break;
             }
         }
     };
+
+
     private Uri uri;
 
 
@@ -131,9 +155,7 @@ public class SystemVideoActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
-                    mHandler.removeCallbacksAndMessages(null);
-                    isPlayer = false;
-                    setPlayOrPauseState();
+                    videoPlayer.pause();
                     videoPlayer.seekTo(progress);
 
                 }
@@ -142,15 +164,15 @@ public class SystemVideoActivity extends AppCompatActivity {
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
+                mHandler.removeCallbacksAndMessages(null);
 
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                isPlayer = true;
-                setPlayOrPauseState();
+                videoPlayer.start();
                 mHandler.sendEmptyMessage(PROGRESS);
-
+                mHandler.sendEmptyMessageDelayed(HIDE_MEDIACONTROLLER, 4000);
             }
         });
 
@@ -194,7 +216,7 @@ public class SystemVideoActivity extends AppCompatActivity {
         btnPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isPlayer = !isPlayer;
+              //  isPlayer = !isPlayer;
                 setPlayOrPauseState();
                 LogUtils.d("点击暂停按钮");
             }
@@ -202,6 +224,18 @@ public class SystemVideoActivity extends AppCompatActivity {
 
 
     }
+
+
+    /**
+     * 隐藏控制面板
+     */
+    private void hideMediaController() {
+
+        llTop.setVisibility(View.GONE);
+        llBottom.setVisibility(View.GONE);
+        isShowController = false;
+    }
+
 
     /**
      * 播放上一个视频
@@ -296,6 +330,61 @@ public class SystemVideoActivity extends AppCompatActivity {
         // 设置电池的状态
         setBatteryState();
 
+        mDetector = new GestureDetector(new GestureDetector.SimpleOnGestureListener(){
+
+            /**
+             * 长按
+             * @param e
+             */
+            @Override
+            public void onLongPress(MotionEvent e) {
+                super.onLongPress(e);
+                setPlayOrPauseState();
+            }
+
+            /**
+             * 双击的回到
+             * @param e
+             * @return
+             */
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                return super.onDoubleTap(e);
+            }
+
+
+            //单机
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+
+                if (isShowController) {
+                    hideMediaController();
+                    mHandler.removeMessages(HIDE_MEDIACONTROLLER);
+                } else {
+                    showMediaController();
+                    mHandler.sendEmptyMessageDelayed(HIDE_MEDIACONTROLLER, 4000);
+                }
+
+                return super.onSingleTapConfirmed(e);
+            }
+        });
+
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        mDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
+    }
+
+    /**
+     * 显示控制面板
+     */
+    private void showMediaController() {
+
+        llTop.setVisibility(View.VISIBLE);
+        llBottom.setVisibility(View.VISIBLE);
+        isShowController = true;
 
     }
 
@@ -367,17 +456,15 @@ public class SystemVideoActivity extends AppCompatActivity {
     private void setPlayOrPauseState() {
 
         LogUtils.d("点击播放暂停按钮");
-        if (isPlayer) {
+        if (!videoPlayer.isPlaying()) {
             // 正在  播放
             btnPause.setBackgroundResource(R.drawable.pause_selector);
             mHandler.sendEmptyMessage(PROGRESS);
             videoPlayer.start();
         } else {
             btnPause.setBackgroundResource(R.drawable.player_selector);
-            mHandler.removeCallbacksAndMessages(null);
-
+            mHandler.removeMessages(PROGRESS);
             videoPlayer.pause();
-
         }
 
     }
@@ -391,10 +478,10 @@ public class SystemVideoActivity extends AppCompatActivity {
                 int duration = videoPlayer.getDuration();
                 tvVideoTime.setText(timeUtils.stringForTime(duration));
                 sbDuration.setMax(duration);
-
                 videoPlayer.start();
-
                 mHandler.sendEmptyMessage(PROGRESS);
+                // 发送隐藏控制面板
+                mHandler.sendEmptyMessageDelayed(HIDE_MEDIACONTROLLER, 4000);
             }
         });
 
