@@ -1,6 +1,8 @@
 package com.storm.mobileplayer.utils;
 
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Formatter;
 import java.util.Locale;
 
@@ -21,6 +23,7 @@ public class TimeUtils {
 
     /**
      * 把毫秒转换成：1:20:30这里形式
+     *
      * @param timeMs
      * @return
      */
@@ -39,6 +42,12 @@ public class TimeUtils {
         } else {
             return mFormatter.format("%02d:%02d", minutes, seconds).toString();
         }
+    }
+
+    public String getSystemTime() {
+        SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+
+        return format.format(new Date());
     }
 
 }

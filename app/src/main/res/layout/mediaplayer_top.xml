@@ -101,7 +101,7 @@
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp"
                 android:padding="3dp"
-                android:text="进度"
+                android:text="00:00"
                 android:textColor="@color/textcolor_controller_top"
                 android:textSize="14sp" />
 
@@ -122,7 +122,7 @@
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp"
                 android:padding="3dp"
-                android:text="总时间"
+                android:text="00:00"
                 android:textColor="@color/textcolor_controller_top"
                 android:textSize="14sp" />
         </LinearLayout>

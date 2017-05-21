@@ -121,7 +121,7 @@ public class LocalVideoPager extends BaseFragment {
                         long duration = cursor.getLong(cursor.getColumnIndex(MediaStore.Video.Media.DURATION));
                         long size = cursor.getLong(cursor.getColumnIndex(MediaStore.Video.Media.SIZE));
                         String data = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
-                        LocalVideoBean bean = new LocalVideoBean(name, duration, size, data);
+                        LocalVideoBean bean = new LocalVideoBean(name,duration,size,data);
                         videoBeans.add(bean);
                     }
                     cursor.close();

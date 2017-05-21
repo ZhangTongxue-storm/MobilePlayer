@@ -7,6 +7,8 @@ import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -25,9 +27,12 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+
 public class SystemVideoActivity extends AppCompatActivity {
 
     public static final String TAG = "SystemVideoActivity";
+
+    public static final int PROGRESS = 1;
 
     @BindView(R.id.video_player)
     VideoView videoPlayer;
@@ -66,6 +71,29 @@ public class SystemVideoActivity extends AppCompatActivity {
 
     private TimeUtils timeUtils;
     private BroadcastReceiver batteryReceiver;
+    private int position;
+
+    private Handler mHandler = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case PROGRESS:
+                    int currentPosition = videoPlayer.getCurrentPosition();
+                    sbDuration.setProgress(currentPosition);
+                    tvDuration.setText(timeUtils.stringForTime(currentPosition));
+                    // updata systemtiem
+                    tvSystemTime.setText(timeUtils.getSystemTime());
+
+                    sendEmptyMessageDelayed(PROGRESS, 1000);
+                    LogUtils.d("循环发送消息");
+                    break;
+            }
+        }
+    };
+    private Uri uri;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,25 +107,102 @@ public class SystemVideoActivity extends AppCompatActivity {
 
     }
 
-    private void initData() {
+    private void setListener() {
 
-        videoLists = (ArrayList<LocalVideoBean>) getIntent().getSerializableExtra("videoList");
-        int position = getIntent().getIntExtra("position", -1);
-        if (position != -1) {
-            videoPlayer.setVideoURI(Uri.parse(videoLists.get(position).getData()));
-            videoPlayer.start();
-        }
+        sbDuration.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) {
+                    mHandler.removeCallbacksAndMessages(null);
+                    isPlayer = false;
+                    setPlayOrPauseState();
+                    videoPlayer.seekTo(progress);
 
-        timeUtils = new TimeUtils();
+                }
 
-        // 设置电池的状态
-        setBatteryState();
-        int duration = videoPlayer.getDuration();
-        LogUtils.d("视屏的总时长" + duration);
+            }
 
-        tvVideoTime.setText(timeUtils.stringForTime(duration));
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                isPlayer = true;
+                setPlayOrPauseState();
+                mHandler.sendEmptyMessage(PROGRESS);
+
+            }
+        });
+
+        /*
+         *
+         * 获取系统的声音
+         */
+        sbVoice.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        btnExit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                videoPlayer.stopPlayback();
+                finish();
+            }
+        });
+        btnFullscreen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isFullScreen = !isFullScreen;
+                setScreenState();
+            }
+        });
+
+
+        btnPause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isPlayer = !isPlayer;
+                setPlayOrPauseState();
+                LogUtils.d("点击暂停按钮");
+            }
+        });
+
 
     }
+
+    private void initData() {
+        timeUtils = new TimeUtils();
+        videoLists = (ArrayList<LocalVideoBean>) getIntent().getSerializableExtra("videoList");
+        position = getIntent().getIntExtra("position", -1);
+        if (position != -1) {
+            uri = Uri.parse(videoLists.get(position).getData());
+            videoPlayer.setVideoURI(uri);
+
+        }
+        // 设置系统时间
+        tvSystemTime.setText(timeUtils.getSystemTime());
+        tvVideoName.setText(videoLists.get(position).getName());
+        // 设置电池的状态
+        setBatteryState();
+
+
+    }
+
 
     /**
      * 设置电池的状态
@@ -122,7 +227,7 @@ public class SystemVideoActivity extends AppCompatActivity {
     /**
      * 设置电池的状态
      *
-     * @param level
+     * @param level 电量
      */
     private void setvideoBatterState(int level) {
 
@@ -136,10 +241,8 @@ public class SystemVideoActivity extends AppCompatActivity {
             ivBattery.setImageResource(R.drawable.ic_battery_40);
         } else if (level > 40 && level <= 60) {
             ivBattery.setImageResource(R.drawable.ic_battery_60);
-
         } else if (level > 60 && level <= 80) {
             ivBattery.setImageResource(R.drawable.ic_battery_80);
-
         } else if (level > 80 && level <= 100) {
             ivBattery.setImageResource(R.drawable.ic_battery_100);
 
@@ -147,35 +250,6 @@ public class SystemVideoActivity extends AppCompatActivity {
 
     }
 
-    private void setListener() {
-
-
-        btnExit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                videoPlayer.stopPlayback();
-                finish();
-            }
-        });
-        btnFullscreen.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isFullScreen = !isFullScreen;
-                setScreenState();
-            }
-        });
-
-
-        btnPause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isPlayer = !isPlayer;
-                setPlayOrPauseState();
-            }
-        });
-
-
-    }
 
     /**
      * 设置切换是否全屏的状态
@@ -196,12 +270,16 @@ public class SystemVideoActivity extends AppCompatActivity {
      */
     private void setPlayOrPauseState() {
 
+        LogUtils.d("点击播放暂停按钮");
         if (isPlayer) {
             // 正在  播放
             btnPause.setBackgroundResource(R.drawable.pause_selector);
+            mHandler.sendEmptyMessage(PROGRESS);
             videoPlayer.start();
         } else {
             btnPause.setBackgroundResource(R.drawable.player_selector);
+            mHandler.removeCallbacksAndMessages(null);
+
             videoPlayer.pause();
 
         }
@@ -210,16 +288,21 @@ public class SystemVideoActivity extends AppCompatActivity {
 
     private void setVideoPlayer() {
 
-        // videoPlayer.setMediaController(new MediaController(this));
-
         // 前期准备
         videoPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
+                int duration = videoPlayer.getDuration();
+                tvVideoTime.setText(timeUtils.stringForTime(duration));
+                sbDuration.setMax(duration);
+
                 videoPlayer.start();
+
+                mHandler.sendEmptyMessage(PROGRESS);
             }
         });
 
+        //监听异常
         videoPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
             @Override
             public boolean onError(MediaPlayer mp, int what, int extra) {
@@ -227,7 +310,7 @@ public class SystemVideoActivity extends AppCompatActivity {
             }
 
         });
-
+        // 监听完成
         videoPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
@@ -240,8 +323,16 @@ public class SystemVideoActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(batteryReceiver);
+
+        if (batteryReceiver != null) {
+            unregisterReceiver(batteryReceiver);
+        }
         batteryReceiver = null;
+
+        if (mHandler != null) {
+            mHandler.removeCallbacksAndMessages(null);
+        }
+        mHandler = null;
     }
 
 
