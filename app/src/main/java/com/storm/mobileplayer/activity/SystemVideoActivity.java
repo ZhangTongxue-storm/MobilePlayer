@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.storm.mobileplayer.R;
@@ -109,6 +110,23 @@ public class SystemVideoActivity extends AppCompatActivity {
 
     private void setListener() {
 
+
+        //播放上一个
+        btnPre.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playPreVideo();
+            }
+        });
+
+        //点击下一个
+        btnNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playNextVideo();
+            }
+        });
+
         sbDuration.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -184,6 +202,84 @@ public class SystemVideoActivity extends AppCompatActivity {
 
 
     }
+
+    /**
+     * 播放上一个视频
+     */
+    private void playPreVideo() {
+
+        position -= 1;
+        if (position < 0) {
+            // Toast.makeText(this, "已经到第一个了", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
+        LocalVideoBean videoBean = videoLists.get(position);
+        videoPlayer.setVideoPath(videoBean.getData());
+        tvVideoName.setText(videoBean.getName());
+        setButtonState();
+    }
+
+    /**
+     * 播放下一个视频
+     */
+    private void playNextVideo() {
+        position += 1;
+        if (position > videoLists.size() - 1) {
+            Toast.makeText(this, "已经到了最后一个了", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+        LocalVideoBean videoBean = videoLists.get(position);
+        videoPlayer.setVideoPath(videoBean.getData());
+        tvVideoName.setText(videoBean.getName());
+        setButtonState();
+
+    }
+
+    /**
+     * 设置点击状态
+     */
+    private void setButtonState() {
+        if (videoLists != null && videoLists.size() > 0) {
+            setEnabled(true);
+
+            if (position == 0) {
+                btnPre.setBackgroundResource(R.drawable.btn_pre_gray);
+                btnPre.setEnabled(false);
+
+            }
+
+            if (position == videoLists.size() - 1) {
+                btnNext.setBackgroundResource(R.drawable.btn_next_gray);
+                btnNext.setEnabled(false);
+
+            }
+        } else if (uri != null) {
+            //下个和上个都不可以点击
+            setEnabled(false);
+
+        }
+
+    }
+
+
+    private void setEnabled(boolean b) {
+
+        if (b) {
+            btnPre.setBackgroundResource(R.drawable.pre_selector);
+            btnNext.setBackgroundResource(R.drawable.next_selector);
+
+        } else {
+            btnPre.setBackgroundResource(R.drawable.btn_pre_gray);
+            btnNext.setBackgroundResource(R.drawable.btn_next_gray);
+
+        }
+
+        btnPre.setEnabled(b);
+        btnNext.setEnabled(b);
+
+    }
+
 
     private void initData() {
         timeUtils = new TimeUtils();
