@@ -1,7 +1,9 @@
 package com.storm.mobileplayer.activity;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
@@ -192,6 +194,24 @@ public class VitamioVideoActivity extends AppCompatActivity {
 
     private void setListener() {
 
+        btnSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new AlertDialog.Builder(VitamioVideoActivity.this)
+                        .setTitle("提示")
+                        .setMessage("当前为万能播放器,当前播放如果有色块,不清晰,切换到系统播放器")
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                startSystemPlayer();
+                            }
+                        })
+                        .setNegativeButton("取消", null)
+                        .show();
+            }
+        });
+
         btnVoice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -303,6 +323,33 @@ public class VitamioVideoActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    /**
+     * 切换到系统播放器
+     */
+    private void startSystemPlayer() {
+
+        if (videoPlayer != null) {
+            videoPlayer.stopPlayback();
+
+        }
+
+        Intent intent = new Intent(VitamioVideoActivity.this, SystemVideoActivity.class);
+
+        if (videoLists != null && videoLists.size() > 0) {
+
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("videoList", videoLists);
+            intent.putExtra("position", position);
+            intent.putExtras(bundle);
+        } else if (uri != null) {
+
+            intent.setData(uri);
+
+        }
+        startActivity(intent);
+        finish();
     }
 
     /**

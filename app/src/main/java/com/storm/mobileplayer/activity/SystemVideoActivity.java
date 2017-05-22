@@ -1,7 +1,9 @@
 package com.storm.mobileplayer.activity;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
@@ -191,6 +193,24 @@ public class SystemVideoActivity extends AppCompatActivity {
     }
 
     private void setListener() {
+        btnSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 切换到万能播放器newd
+                new AlertDialog.Builder(SystemVideoActivity.this)
+                            .setTitle("提示")
+                            .setMessage("当前为系统播放器, 出现黑屏或者没有声音,请切换到万能播放器")
+                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    startVitamioPlayer();
+
+                                }
+                            })
+                            .setNegativeButton("取消", null)
+                            .show();
+            }
+        });
 
         btnVoice.setOnClickListener(new View.OnClickListener() {
             @Override
