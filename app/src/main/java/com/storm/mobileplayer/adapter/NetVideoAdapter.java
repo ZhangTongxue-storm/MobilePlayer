@@ -11,6 +11,7 @@ import com.squareup.picasso.Picasso;
 import com.storm.mobileplayer.R;
 import com.storm.mobileplayer.ViewHolder.ViewHolder;
 import com.storm.mobileplayer.bean.NetVideoBean;
+import com.storm.mobileplayer.utils.LogUtils;
 import com.storm.mobileplayer.utils.TimeUtils;
 
 import java.util.ArrayList;
@@ -60,8 +61,10 @@ public class NetVideoAdapter extends BaseAdapter {
 
         // 设置数据
 
-        movieName.setText(mDatas.get(position).getMovieName());
+        movieName.setText(mDatas.get(position).getMovieName().trim());
         movieContent.setText(mDatas.get(position).getSummary());
+        LogUtils.d(mDatas.get(position).getVideoLength());
+        LogUtils.d(timeUtils.stringForTime(mDatas.get(position).getVideoLength()));
         movieLength.setText(timeUtils.stringForTime(mDatas.get(position).getVideoLength() * 1000));
 
         Picasso.with(mContext).load(mDatas.get(position).getCoverImg())
