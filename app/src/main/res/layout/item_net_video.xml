@@ -1,51 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="80dp"
+    android:layout_height="140dp"
     android:gravity="center_vertical"
-    android:minHeight="80dp">
+    android:minHeight="140dp">
+
 
     <ImageView
-        android:id="@+id/video_icon"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:background="@drawable/video_default_icon" />
+        android:id="@+id/iv_movie_icon"
+        android:layout_width="160dp"
+        android:layout_centerVertical="true"
+        android:layout_height="130dp"
+        android:scaleType="fitXY"
+        android:layout_alignParentLeft="true"
+        android:padding="5dp"
+         />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
         android:layout_marginLeft="8dp"
-        android:layout_toRightOf="@id/video_icon"
+        android:layout_toRightOf="@id/iv_movie_icon"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/video_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="视频名字"
-            android:textColor="#000000"
-            android:textSize="16sp" />
 
         <TextView
-            android:id="@+id/video_duration"
+            android:id="@+id/tv_movie_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:text="视频時間"
+            android:text="电影名称"
+            android:textColor="#000000"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/tv_movie_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="电影时长"
             android:textColor="#99000000"
             android:textSize="16sp" />
-
     </LinearLayout>
 
     <TextView
-        android:id="@+id/video_size"
+        android:id="@+id/tv_movie_length"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="8dp"
         android:paddingBottom="8dp"
+        android:paddingRight="8dp"
         android:text="大小"
-        android:textColor="#55000000" />
+        android:textColor="#99000000"
+        android:textSize="14sp" />
 
 </RelativeLayout>
