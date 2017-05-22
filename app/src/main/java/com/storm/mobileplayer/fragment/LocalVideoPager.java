@@ -86,7 +86,7 @@ public class LocalVideoPager extends BaseFragment {
         lvLocalVideo.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            //   LocalVideoBean item = (LocalVideoBean) adapter.getItem(position);
+                   LocalVideoBean item = (LocalVideoBean) adapter.getItem(position);
 
                 Intent intent = new Intent(mContext,SystemVideoActivity.class);
                 Bundle bundle = new Bundle();
@@ -95,6 +95,11 @@ public class LocalVideoPager extends BaseFragment {
                 intent.putExtras(bundle);
 
                 startActivity(intent);
+//                Intent intent = new Intent(mContext, SystemVideoActivity.class);
+//                intent.setDataAndType(Uri.parse("http://192.168.31.168:8080/yellow.mp4"), "video/*");
+//                startActivity(intent);
+
+
             }
         });
 
@@ -121,7 +126,7 @@ public class LocalVideoPager extends BaseFragment {
                         long duration = cursor.getLong(cursor.getColumnIndex(MediaStore.Video.Media.DURATION));
                         long size = cursor.getLong(cursor.getColumnIndex(MediaStore.Video.Media.SIZE));
                         String data = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
-                        LocalVideoBean bean = new LocalVideoBean(name,duration,size,data);
+                        LocalVideoBean bean = new LocalVideoBean(name, duration, size, data);
                         videoBeans.add(bean);
                     }
                     cursor.close();

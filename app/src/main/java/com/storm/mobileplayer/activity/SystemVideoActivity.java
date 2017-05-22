@@ -25,7 +25,9 @@ import android.widget.Toast;
 
 import com.storm.mobileplayer.R;
 import com.storm.mobileplayer.bean.LocalVideoBean;
+import com.storm.mobileplayer.custom.VideoView;
 import com.storm.mobileplayer.utils.LogUtils;
+import com.storm.mobileplayer.utils.NetUtils;
 import com.storm.mobileplayer.utils.TimeUtils;
 
 import java.util.ArrayList;
@@ -42,12 +44,14 @@ public class SystemVideoActivity extends AppCompatActivity {
 
     public static final int HIDE_MEDIACONTROLLER = 2;
 
+    public static final int SHOW_NET_SPEED = 3; // 显示网速
+
     public static final int DEFAULT_SCREEN = 0;
 
     public static final int FULL_SCREEN = 1;
 
     @BindView(R.id.video_player)
-    com.storm.mobileplayer.custom.VideoView videoPlayer;
+    VideoView videoPlayer;
     @BindView(R.id.tv_video_name)
     TextView tvVideoName;
     @BindView(R.id.iv_battery)
@@ -80,10 +84,18 @@ public class SystemVideoActivity extends AppCompatActivity {
     LinearLayout llTop;
     @BindView(R.id.ll_bottom)
     LinearLayout llBottom;
+    @BindView(R.id.tv_net_speed)
+    TextView tvNetSpeed;
+    @BindView(R.id.ll_buffering)
+    LinearLayout llBuffering;
+    @BindView(R.id.ll_isLoading_uri)
+    LinearLayout llIsLoadingUri;
+    @BindView(R.id.tv_loading_net_speed)
+    TextView tvLoadingNetSpeed;
 
     private boolean isPlayer = true;            //当前视频是否播放
     private boolean isFullScreen = false;       // 当前视频是否全屏
-    private boolean isShowController = true; // 是否隐藏控制面板
+    private boolean isShowController = true;    // 是否隐藏控制面板
 
     private ArrayList<LocalVideoBean> videoLists;
 
@@ -111,6 +123,13 @@ public class SystemVideoActivity extends AppCompatActivity {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
+                case SHOW_NET_SPEED:
+                    // 显示网速
+                    tvLoadingNetSpeed.setText(NetUtils.getNetSpeed(SystemVideoActivity.this));
+
+                    mHandler.sendEmptyMessageDelayed(SHOW_NET_SPEED, 1000);
+                    break;
+
                 case PROGRESS:
                     int currentPosition = videoPlayer.getCurrentPosition();
                     sbDuration.setProgress(currentPosition);
@@ -118,12 +137,36 @@ public class SystemVideoActivity extends AppCompatActivity {
                     // updata systemtiem
                     tvSystemTime.setText(timeUtils.getSystemTime());
 
-                    sendEmptyMessageDelayed(PROGRESS, 1000);
+                    if (isNetUri) {
+                        int bufferPercentage = videoPlayer.getBufferPercentage();
+                        int totalBuffer = bufferPercentage * sbDuration.getMax();
+                        int SecondaryProgress = totalBuffer / 100;
+                        sbDuration.setSecondaryProgress(SecondaryProgress);
+                    } else {
+                        // 不是网络 缓冲为0;
+                        sbDuration.setSecondaryProgress(0);
+                    }
 
+                    if (isNetUri && videoPlayer.isPlaying()) {
+                        // 网络视屏
+                        int duration = currentPosition - prePosition;
+                        if (duration < 500) {
+                            // 监听卡
+                            llBuffering.setVisibility(View.VISIBLE);
+                            tvNetSpeed.setText(NetUtils.getNetSpeed(SystemVideoActivity.this));
+
+                        } else {
+                            llBuffering.setVisibility(View.GONE);
+
+                        }
+                        prePosition = currentPosition;
+
+                    }
+
+                    sendEmptyMessageDelayed(PROGRESS, 1000);
                     LogUtils.d("循环发送消息");
                     break;
                 case HIDE_MEDIACONTROLLER:
-
                     //隐藏控制面板
                     hideMediaController();
 
@@ -131,6 +174,8 @@ public class SystemVideoActivity extends AppCompatActivity {
             }
         }
     };
+    private boolean isNetUri;
+    private int prePosition; // 上一次的播放进度
 
 
     @Override
@@ -239,6 +284,7 @@ public class SystemVideoActivity extends AppCompatActivity {
                 finish();
             }
         });
+
         btnFullscreen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -246,7 +292,6 @@ public class SystemVideoActivity extends AppCompatActivity {
                 setScreenState();
             }
         });
-
 
         btnPause.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -273,7 +318,6 @@ public class SystemVideoActivity extends AppCompatActivity {
         } else {
             isMaxVoice = true;
         }
-
     }
 
     /**
@@ -328,14 +372,17 @@ public class SystemVideoActivity extends AppCompatActivity {
      */
     private void playNextVideo() {
         position += 1;
-        if (position > videoLists.size() - 1) {
+        LogUtils.d("videolist" + videoLists.size());
+
+        if (position < videoLists.size()) {
+            LocalVideoBean videoBean = videoLists.get(position);
+            videoPlayer.setVideoPath(videoBean.getData());
+            tvVideoName.setText(videoBean.getName());
+            setButtonState();
+        } else {
             Toast.makeText(this, "已经到了最后一个了", Toast.LENGTH_SHORT).show();
             finish();
         }
-        LocalVideoBean videoBean = videoLists.get(position);
-        videoPlayer.setVideoPath(videoBean.getData());
-        tvVideoName.setText(videoBean.getName());
-        setButtonState();
 
     }
 
@@ -388,14 +435,27 @@ public class SystemVideoActivity extends AppCompatActivity {
         timeUtils = new TimeUtils();
         videoLists = (ArrayList<LocalVideoBean>) getIntent().getSerializableExtra("videoList");
         position = getIntent().getIntExtra("position", -1);
-        if (position != -1) {
-            uri = Uri.parse(videoLists.get(position).getData());
+        uri = getIntent().getData();
+
+        if (videoLists != null && videoLists.size() > 0) {
+            videoPlayer.setVideoPath(videoLists.get(position).getData());
+            tvVideoName.setText(videoLists.get(position).getName());
+
+        } else if (uri != null) {
             videoPlayer.setVideoURI(uri);
+            tvVideoName.setText(uri.toString());
+            isNetUri = NetUtils.isNeturl(uri.toString());
+            setButtonState();
 
         }
+
+        llIsLoadingUri.setVisibility(View.VISIBLE);
+
+        mHandler.sendEmptyMessage(SHOW_NET_SPEED);
+
         // 设置系统时间
         tvSystemTime.setText(timeUtils.getSystemTime());
-        tvVideoName.setText(videoLists.get(position).getName());
+
         // 设置电池的状态
         setBatteryState();
 
@@ -599,6 +659,8 @@ public class SystemVideoActivity extends AppCompatActivity {
                 tvVideoTime.setText(timeUtils.stringForTime(duration));
                 sbDuration.setMax(duration);
                 videoPlayer.start();
+                llIsLoadingUri.setVisibility(View.GONE);
+                mHandler.removeMessages(SHOW_NET_SPEED);
                 mHandler.sendEmptyMessage(PROGRESS);
                 // 发送隐藏控制面板
                 mHandler.sendEmptyMessageDelayed(HIDE_MEDIACONTROLLER, 4000);
