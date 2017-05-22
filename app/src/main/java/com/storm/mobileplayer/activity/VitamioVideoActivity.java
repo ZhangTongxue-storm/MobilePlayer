@@ -709,6 +709,7 @@ public class VitamioVideoActivity extends AppCompatActivity {
                 llIsLoadingUri.setVisibility(View.GONE);
                 mHandler.removeMessages(SHOW_NET_SPEED);
                 mHandler.sendEmptyMessage(PROGRESS);
+                btnPause.setBackgroundResource(R.drawable.pause_selector);
                 // 发送隐藏控制面板
                 mHandler.sendEmptyMessageDelayed(HIDE_MEDIACONTROLLER, 4000);
 
