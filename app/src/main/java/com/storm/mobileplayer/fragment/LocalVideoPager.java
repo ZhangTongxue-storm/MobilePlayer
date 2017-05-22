@@ -4,7 +4,6 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
@@ -86,18 +85,18 @@ public class LocalVideoPager extends BaseFragment {
         lvLocalVideo.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                   LocalVideoBean item = (LocalVideoBean) adapter.getItem(position);
-
-                Intent intent = new Intent(mContext,SystemVideoActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("videoList", videoBeans);
-                intent.putExtra("position", position);
-                intent.putExtras(bundle);
-
-                startActivity(intent);
+//                LocalVideoBean item = (LocalVideoBean) adapter.getItem(position);
+//
 //                Intent intent = new Intent(mContext, SystemVideoActivity.class);
-//                intent.setDataAndType(Uri.parse("http://192.168.31.168:8080/yellow.mp4"), "video/*");
+//                Bundle bundle = new Bundle();
+//                bundle.putSerializable("videoList", videoBeans);
+//                intent.putExtra("position", position);
+//                intent.putExtras(bundle);
+//
 //                startActivity(intent);
+                Intent intent = new Intent(mContext, SystemVideoActivity.class);
+                intent.setDataAndType(Uri.parse("http://vfx.mtime.cn/Video/2017/05/17/mp4/170517153754509087.mp4"), "video/*");
+                startActivity(intent);
 
 
             }

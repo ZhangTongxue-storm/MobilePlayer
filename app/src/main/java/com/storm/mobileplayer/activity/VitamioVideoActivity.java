@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,7 +24,7 @@ import android.widget.Toast;
 
 import com.storm.mobileplayer.R;
 import com.storm.mobileplayer.bean.LocalVideoBean;
-import com.storm.mobileplayer.custom.VideoView;
+import com.storm.mobileplayer.custom.VitamioVideoView;
 import com.storm.mobileplayer.utils.LogUtils;
 import com.storm.mobileplayer.utils.NetUtils;
 import com.storm.mobileplayer.utils.TimeUtils;
@@ -34,11 +33,12 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.vov.vitamio.MediaPlayer;
 
 
-public class SystemVideoActivity extends AppCompatActivity {
+public class VitamioVideoActivity extends AppCompatActivity {
 
-    public static final String TAG = "SystemVideoActivity";
+    public static final String TAG = "VitamioVideoActivity";
 
     public static final int PROGRESS = 1;
 
@@ -51,7 +51,7 @@ public class SystemVideoActivity extends AppCompatActivity {
     public static final int FULL_SCREEN = 1;
 
     @BindView(R.id.video_player)
-    VideoView videoPlayer;
+    VitamioVideoView videoPlayer;
     @BindView(R.id.tv_video_name)
     TextView tvVideoName;
     @BindView(R.id.iv_battery)
@@ -125,13 +125,13 @@ public class SystemVideoActivity extends AppCompatActivity {
             switch (msg.what) {
                 case SHOW_NET_SPEED:
                     // 显示网速
-                    tvLoadingNetSpeed.setText(NetUtils.getNetSpeed(SystemVideoActivity.this));
+                    tvLoadingNetSpeed.setText(NetUtils.getNetSpeed(VitamioVideoActivity.this));
 
                     mHandler.sendEmptyMessageDelayed(SHOW_NET_SPEED, 1000);
                     break;
 
                 case PROGRESS:
-                    int currentPosition = videoPlayer.getCurrentPosition();
+                    int currentPosition = (int) videoPlayer.getCurrentPosition();
                     sbDuration.setProgress(currentPosition);
                     tvDuration.setText(timeUtils.stringForTime(currentPosition));
                     // updata systemtiem
@@ -153,7 +153,7 @@ public class SystemVideoActivity extends AppCompatActivity {
                         if (duration < 500) {
                             // 监听卡
                             llBuffering.setVisibility(View.VISIBLE);
-                            tvNetSpeed.setText(NetUtils.getNetSpeed(SystemVideoActivity.this));
+                            tvNetSpeed.setText(NetUtils.getNetSpeed(VitamioVideoActivity.this));
 
                         } else {
                             llBuffering.setVisibility(View.GONE);
@@ -182,7 +182,7 @@ public class SystemVideoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_system_video);
+        setContentView(R.layout.activity_vitamio_video);
         ButterKnife.bind(this);
         initData();
         setVideoPlayer();
@@ -655,7 +655,7 @@ public class SystemVideoActivity extends AppCompatActivity {
                 videoWidth = mp.getVideoWidth();
                 videoHeight = mp.getVideoHeight();
 
-                int duration = videoPlayer.getDuration();
+                int duration = (int) videoPlayer.getDuration();
                 tvVideoTime.setText(timeUtils.stringForTime(duration));
                 sbDuration.setMax(duration);
                 videoPlayer.start();
@@ -675,9 +675,7 @@ public class SystemVideoActivity extends AppCompatActivity {
         videoPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
             @Override
             public boolean onError(MediaPlayer mp, int what, int extra) {
-                //监听播放出错的处理
-                startVitamioPlayer();
-                return true;
+                return false;
             }
 
         });
@@ -689,31 +687,6 @@ public class SystemVideoActivity extends AppCompatActivity {
             }
         });
 
-    }
-
-
-    /**
-     * 监听播放出错时候调用万能播放器
-     */
-    private void startVitamioPlayer() {
-        if (videoPlayer != null) {
-            videoPlayer.stopPlayback();
-        }
-
-        Intent intent = new Intent(SystemVideoActivity.this, VitamioVideoActivity.class);
-        if (videoLists != null && videoLists.size() > 0) {
-
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("videoList", videoLists);
-            intent.putExtra("position", position);
-            intent.putExtras(bundle);
-
-        } else if (uri != null) {
-            intent.setData(uri);
-        }
-
-        startActivity(intent);
-        finish();
     }
 
     /**
