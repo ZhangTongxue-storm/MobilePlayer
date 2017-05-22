@@ -13,6 +13,7 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -163,7 +164,6 @@ public class SystemVideoActivity extends AppCompatActivity {
             }
         });
 
-
         //播放上一个
         btnPre.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -287,6 +287,7 @@ public class SystemVideoActivity extends AppCompatActivity {
         } else {
             //静音
             am.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
+            currentVoice = 0;
             sbVoice.setProgress(0);
 
         }
@@ -635,6 +636,27 @@ public class SystemVideoActivity extends AppCompatActivity {
                 videoPlayer.setVideoSize(screenwidth, screenHeight);
                 break;
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        mHandler.removeMessages(HIDE_MEDIACONTROLLER);
+        showMediaController();
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+
+            currentVoice -= 1;
+            updateVoice(currentVoice);
+            mHandler.sendEmptyMessageDelayed(HIDE_MEDIACONTROLLER, 5000);
+            return true;
+        } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            currentVoice += 1;
+            updateVoice(currentVoice);
+            mHandler.sendEmptyMessageDelayed(HIDE_MEDIACONTROLLER, 5000);
+            return true;
+        }
+
+
+        return super.onKeyDown(keyCode, event);
     }
 
     @Override
