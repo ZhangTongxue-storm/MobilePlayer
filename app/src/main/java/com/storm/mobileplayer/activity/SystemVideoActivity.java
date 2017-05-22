@@ -83,7 +83,7 @@ public class SystemVideoActivity extends AppCompatActivity {
 
     private boolean isPlayer = true;            //当前视频是否播放
     private boolean isFullScreen = false;       // 当前视频是否全屏
-    private boolean isShowController = false; // 是否隐藏控制面板
+    private boolean isShowController = true; // 是否隐藏控制面板
 
     private ArrayList<LocalVideoBean> videoLists;
 
@@ -213,6 +213,7 @@ public class SystemVideoActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
+                    isMaxVoice = !isMaxVoice;
                     updateVoice(progress);
                 }
 
@@ -280,14 +281,13 @@ public class SystemVideoActivity extends AppCompatActivity {
      */
     private void setButtonVoice() {
         if (isMaxVoice) {
-
+            // 有问题  当前音量为0 的时候的问题
             am.setStreamVolume(AudioManager.STREAM_MUSIC, currentVoice, 0);
             sbVoice.setProgress(currentVoice);
 
         } else {
             //静音
             am.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
-            currentVoice = 0;
             sbVoice.setProgress(0);
 
         }
@@ -436,9 +436,9 @@ public class SystemVideoActivity extends AppCompatActivity {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
 
+                mHandler.removeMessages(HIDE_MEDIACONTROLLER);
                 if (isShowController) {
                     hideMediaController();
-                    mHandler.removeMessages(HIDE_MEDIACONTROLLER);
                 } else {
                     showMediaController();
                     mHandler.sendEmptyMessageDelayed(HIDE_MEDIACONTROLLER, 4000);
@@ -458,9 +458,36 @@ public class SystemVideoActivity extends AppCompatActivity {
 
     }
 
+
+    private float downX, downY;
+    private float rangle; // 获取屏幕
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         mDetector.onTouchEvent(event);
+        showMediaController();
+        mHandler.removeMessages(HIDE_MEDIACONTROLLER);
+        float eventX = event.getX();
+        float eventY = event.getY();
+
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                downX = eventX;
+                downY = eventY;
+                rangle = Math.min(screenwidth, screenHeight);
+
+                break;
+            case MotionEvent.ACTION_MOVE:
+                float dy = downY - eventY;
+                float detalY = (dy / rangle) * maxVoice;
+
+                detalY = Math.min(Math.max(detalY + currentVoice, 0), maxVoice);
+                updateVoice((int) detalY);
+                break;
+            case MotionEvent.ACTION_UP:
+                mHandler.sendEmptyMessageDelayed(HIDE_MEDIACONTROLLER, 5000);
+                break;
+        }
         return super.onTouchEvent(event);
     }
 
