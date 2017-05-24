@@ -24,4 +24,12 @@ public class NetAudioPager extends BaseFragment {
     protected View onCreateRootView(LayoutInflater inflater, ViewGroup container) {
         return inflater.inflate(R.layout.fragment_net_audio, container, false);
     }
+
+    @Override
+    protected void initData() {
+
+
+
+
+    }
 }

@@ -2,6 +2,7 @@ package com.storm.mobileplayer.activity;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,12 +12,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -24,6 +28,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.storm.mobileplayer.MyApplication;
 import com.storm.mobileplayer.R;
 import com.storm.mobileplayer.bean.LocalVideoBean;
 import com.storm.mobileplayer.custom.VitamioVideoView;
@@ -36,6 +41,7 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.vov.vitamio.MediaPlayer;
+import io.vov.vitamio.Vitamio;
 
 
 public class VitamioVideoActivity extends AppCompatActivity {
@@ -118,6 +124,8 @@ public class VitamioVideoActivity extends AppCompatActivity {
     private AudioManager am;
     private int currentVoice;
     private int maxVoice;
+    private int maxLight = 225; //屏幕亮度的值
+
 
     private Handler mHandler = new Handler() {
 
@@ -178,7 +186,7 @@ public class VitamioVideoActivity extends AppCompatActivity {
     };
     private boolean isNetUri;
     private int prePosition; // 上一次的播放进度
-
+    private int currentLight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -479,6 +487,7 @@ public class VitamioVideoActivity extends AppCompatActivity {
 
 
     private void initData() {
+        Vitamio.isInitialized(MyApplication.mContext);
         timeUtils = new TimeUtils();
         videoLists = (ArrayList<LocalVideoBean>) getIntent().getSerializableExtra("videoList");
         position = getIntent().getIntExtra("position", -1);
@@ -505,7 +514,7 @@ public class VitamioVideoActivity extends AppCompatActivity {
 
         // 设置电池的状态
         setBatteryState();
-
+        setCustomLight();
         // 设声音
         am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         currentVoice = am.getStreamVolume(AudioManager.STREAM_MUSIC);
@@ -565,9 +574,29 @@ public class VitamioVideoActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * 设置亮度为手动模式
+     */
+    private void setCustomLight() {
+        ContentResolver resolver = getContentResolver();
+        try {
+            int anInt = Settings.System.getInt(resolver, Settings.System.SCREEN_BRIGHTNESS_MODE);
+
+            if (anInt == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC) {
+                LogUtils.d("shoudong moshi ----------------------");
+                Settings.System.putInt(resolver, Settings.System.SCREEN_BRIGHTNESS_MODE,
+                        Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
+            }
+        } catch (Settings.SettingNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     private float downX, downY;
     private float rangle; // 获取屏幕
+    private float rangleWidth;
+    private int mVol;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -581,15 +610,34 @@ public class VitamioVideoActivity extends AppCompatActivity {
             case MotionEvent.ACTION_DOWN:
                 downX = eventX;
                 downY = eventY;
+                mVol = am.getStreamVolume(AudioManager.STREAM_MUSIC);
                 rangle = Math.min(screenwidth, screenHeight);
-
+                rangleWidth = Math.max(screenwidth, screenHeight);
                 break;
             case MotionEvent.ACTION_MOVE:
-                float dy = downY - eventY;
-                float detalY = (dy / rangle) * maxVoice;
 
-                detalY = Math.min(Math.max(detalY + currentVoice, 0), maxVoice);
-                updateVoice((int) detalY);
+                float dy = downY - eventY;
+
+                if (eventX > rangleWidth / 2 && eventX < rangleWidth) {
+
+                    float detalY = (dy * maxVoice) / rangle;
+
+                    int voice = (int) Math.min(Math.max(detalY + mVol, 0), maxVoice);
+                    updateVoice(voice);
+
+                }
+
+                if (eventX > 0 && eventX < rangleWidth / 2) {
+
+                    float detalY = ((dy * maxLight) / rangle);
+
+                    detalY = Math.min(Math.max(detalY + currentLight, 0), maxLight);
+                    LogUtils.d("需要处理的亮度值" + detalY);
+                    updateLight((int) detalY);
+                    currentLight = (int) detalY;
+
+                    downY = eventY;
+                }
                 break;
             case MotionEvent.ACTION_UP:
                 mHandler.sendEmptyMessageDelayed(HIDE_MEDIACONTROLLER, 5000);
@@ -606,6 +654,19 @@ public class VitamioVideoActivity extends AppCompatActivity {
         llTop.setVisibility(View.VISIBLE);
         llBottom.setVisibility(View.VISIBLE);
         isShowController = true;
+
+    }
+
+    /**
+     * 调屏幕的亮度
+     *
+     * @param detalY
+     */
+    private void updateLight(int detalY) {
+        Window window = getWindow();
+        WindowManager.LayoutParams params = window.getAttributes();
+        params.screenBrightness = detalY / 225f;
+        window.setAttributes(params);
 
     }
 

@@ -2,6 +2,7 @@ package com.storm.mobileplayer.activity;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,12 +13,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -118,6 +122,8 @@ public class SystemVideoActivity extends AppCompatActivity {
     private AudioManager am;
     private int currentVoice;
     private int maxVoice;
+    private int maxLight = 225; //屏幕亮度的值
+
 
     private Handler mHandler = new Handler() {
 
@@ -166,7 +172,7 @@ public class SystemVideoActivity extends AppCompatActivity {
                     }
 
                     sendEmptyMessageDelayed(PROGRESS, 1000);
-                    LogUtils.d("循环发送消息");
+                    // LogUtils.d("循环发送消息");
                     break;
                 case HIDE_MEDIACONTROLLER:
                     //隐藏控制面板
@@ -178,12 +184,12 @@ public class SystemVideoActivity extends AppCompatActivity {
     };
     private boolean isNetUri;
     private int prePosition; // 上一次的播放进度
+    private int currentLight;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_system_video);
         ButterKnife.bind(this);
         initData();
@@ -198,17 +204,17 @@ public class SystemVideoActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // 切换到万能播放器newd
                 new AlertDialog.Builder(SystemVideoActivity.this)
-                            .setTitle("提示")
-                            .setMessage("当前为系统播放器, 出现黑屏或者没有声音,请切换到万能播放器")
-                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    startVitamioPlayer();
+                        .setTitle("提示")
+                        .setMessage("当前为系统播放器, 出现黑屏或者没有声音,请切换到万能播放器")
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                startVitamioPlayer();
 
-                                }
-                            })
-                            .setNegativeButton("取消", null)
-                            .show();
+                            }
+                        })
+                        .setNegativeButton("取消", null)
+                        .show();
             }
         });
 
@@ -453,6 +459,7 @@ public class SystemVideoActivity extends AppCompatActivity {
 
     private void initData() {
         timeUtils = new TimeUtils();
+
         videoLists = (ArrayList<LocalVideoBean>) getIntent().getSerializableExtra("videoList");
         position = getIntent().getIntExtra("position", -1);
         uri = getIntent().getData();
@@ -466,11 +473,9 @@ public class SystemVideoActivity extends AppCompatActivity {
             tvVideoName.setText(uri.toString());
             isNetUri = NetUtils.isNeturl(uri.toString());
             setButtonState();
-
         }
 
         llIsLoadingUri.setVisibility(View.VISIBLE);
-
         mHandler.sendEmptyMessage(SHOW_NET_SPEED);
 
         // 设置系统时间
@@ -478,9 +483,14 @@ public class SystemVideoActivity extends AppCompatActivity {
 
         // 设置电池的状态
         setBatteryState();
+        //设置亮度为手动模式
+        setCustomLight();
+
+        currentLight = getCurrentLigth();
 
         // 设声音
         am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        //当前音量
         currentVoice = am.getStreamVolume(AudioManager.STREAM_MUSIC);
         maxVoice = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         sbVoice.setProgress(currentVoice);
@@ -538,9 +548,37 @@ public class SystemVideoActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * 设置亮度为手动模式
+     */
+    private void setCustomLight() {
+        ContentResolver resolver = getContentResolver();
+        try {
+            int anInt = Settings.System.getInt(resolver, Settings.System.SCREEN_BRIGHTNESS_MODE);
+
+            if (anInt == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC) {
+                LogUtils.d("shoudong moshi ----------------------");
+                Settings.System.putInt(resolver, Settings.System.SCREEN_BRIGHTNESS_MODE,
+                        Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
+            }
+        } catch (Settings.SettingNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private int getCurrentLigth() {
+        ContentResolver resolver = getContentResolver();
+        int defVal = 125;
+
+        return Settings.System.getInt(resolver, Settings.System.SCREEN_BRIGHTNESS, defVal);
+    }
+
 
     private float downX, downY;
     private float rangle; // 获取屏幕
+    private float rangleWidth;
+    private int mVol;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -554,21 +592,55 @@ public class SystemVideoActivity extends AppCompatActivity {
             case MotionEvent.ACTION_DOWN:
                 downX = eventX;
                 downY = eventY;
+                mVol = am.getStreamVolume(AudioManager.STREAM_MUSIC);
                 rangle = Math.min(screenwidth, screenHeight);
-
+                rangleWidth = Math.max(screenwidth, screenHeight);
                 break;
             case MotionEvent.ACTION_MOVE:
-                float dy = downY - eventY;
-                float detalY = (dy / rangle) * maxVoice;
 
-                detalY = Math.min(Math.max(detalY + currentVoice, 0), maxVoice);
-                updateVoice((int) detalY);
+                float dy = downY - eventY;
+
+                if (eventX > rangleWidth / 2 && eventX < rangleWidth) {
+
+                    float detalY = (dy * maxVoice) / rangle;
+                    int voice = (int) Math.min(Math.max(detalY + mVol, 0), maxVoice);
+
+                    LogUtils.d("当前处理的音量值" + voice);
+                    updateVoice(voice);
+
+                }
+
+                if (eventX > 0 && eventX < rangleWidth / 2) {
+
+                    float detalY = ((dy * maxLight) / rangle);
+
+                    detalY = Math.min(Math.max(detalY + currentLight, 0), maxLight);
+                   // LogUtils.d("需要处理的亮度值" + detalY);
+                    updateLight((int) detalY);
+                    currentLight = (int) detalY;
+
+                    downY = eventY;
+                }
+
                 break;
             case MotionEvent.ACTION_UP:
                 mHandler.sendEmptyMessageDelayed(HIDE_MEDIACONTROLLER, 5000);
                 break;
         }
         return super.onTouchEvent(event);
+    }
+
+    /**
+     * 调屏幕的亮度
+     *
+     * @param detalY
+     */
+    private void updateLight(int detalY) {
+        Window window = getWindow();
+        WindowManager.LayoutParams params = window.getAttributes();
+        params.screenBrightness = detalY / 225f;
+        window.setAttributes(params);
+
     }
 
     /**

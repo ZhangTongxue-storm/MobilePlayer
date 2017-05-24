@@ -77,6 +77,7 @@ public class NetVideoAdapter extends BaseAdapter {
         if (netVideoBean != null && netVideoBean.getTrailers().size() > 0) {
             mDatas.clear();
             mDatas.addAll(netVideoBean.getTrailers());
+            LogUtils.d("执行Adapter中 的" + mDatas.get(0).getMovieName());
             notifyDataSetChanged();
         }
     }
