@@ -6,4 +6,5 @@
     <color name="textcolor_splash">#000000</color>
     <color name="bg_titlebar">#ff3097fd</color>
     <color name="textcolor_controller_top">#ffffff</color>
+    <color name="music_palyer">#ffffff</color>
 </resources>

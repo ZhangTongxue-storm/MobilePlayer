@@ -6,21 +6,21 @@
     android:minHeight="80dp">
 
     <ImageView
-        android:id="@+id/video_icon"
+        android:id="@+id/audio_icon"
         android:layout_width="70dp"
         android:layout_height="70dp"
-        android:background="@drawable/video_default_icon" />
+        android:background="@drawable/music_default_bg" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
         android:layout_centerVertical="true"
-        android:layout_toRightOf="@id/video_icon"
+        android:layout_marginLeft="8dp"
+        android:layout_toRightOf="@id/audio_icon"
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/video_name"
+            android:id="@+id/audio_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="视频名字"
@@ -28,7 +28,7 @@
             android:textSize="16sp" />
 
         <TextView
-            android:id="@+id/video_duration"
+            android:id="@+id/audio_duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
@@ -39,7 +39,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/video_size"
+        android:id="@+id/audio_size"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

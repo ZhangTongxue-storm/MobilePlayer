@@ -4,14 +4,13 @@
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
-
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 
     <application
         android:name=".MyApplication"
@@ -35,19 +34,18 @@
         <activity
             android:name=".activity.VitamioVideoActivity"
             android:configChanges="keyboardHidden|screenSize|orientation"
-            android:screenOrientation="landscape"
             android:launchMode="singleTask"
-            android:theme="@style/noAnimation_Theme">
-
-        </activity>
+            android:screenOrientation="landscape"
+            android:theme="@style/noAnimation_Theme"></activity>
         <activity
             android:name=".activity.SystemVideoActivity"
             android:configChanges="keyboardHidden|screenSize|orientation"
-            android:screenOrientation="landscape"
             android:launchMode="singleTask"
+            android:screenOrientation="landscape"
             android:theme="@style/noAnimation_Theme">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
@@ -55,6 +53,7 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data android:mimeType="video/*" />
@@ -73,7 +72,6 @@
                 <data android:mimeType="video/3gpp" />
                 <data android:mimeType="video/3gpp2" />
             </intent-filter>
-
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -289,9 +287,8 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
-
         </activity>
+        <activity android:name=".activity.MusicPlayerActivity"></activity>
     </application>
 
 </manifest>
