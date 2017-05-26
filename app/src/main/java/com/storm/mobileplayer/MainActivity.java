@@ -1,5 +1,7 @@
 package com.storm.mobileplayer;
 
+import android.app.NotificationManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.v4.app.Fragment;
@@ -14,6 +16,7 @@ import com.storm.mobileplayer.fragment.LocalAudioPager;
 import com.storm.mobileplayer.fragment.LocalVideoPager;
 import com.storm.mobileplayer.fragment.NetAudioPager;
 import com.storm.mobileplayer.fragment.NetVideoPager;
+import com.storm.mobileplayer.service.MusicPlayService;
 
 import java.util.ArrayList;
 
@@ -21,6 +24,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
+
 
     @BindView(R.id.fl_main)
     FrameLayout flMain;
@@ -34,20 +38,27 @@ public class MainActivity extends AppCompatActivity {
     RadioButton rbNetAudio;
     @BindView(R.id.rg_navigation)
     RadioGroup rgNavigation;
-
     private ArrayList<BaseFragment> mFragments;
     private int position;
     private Fragment currentFragment;
+    private NotificationManager nm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
         setFragment();
+        initData();
         setListener();
 
         rgNavigation.check(R.id.rb_local_video);
+
+    }
+
+    private void initData() {
+        nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
     }
 
@@ -122,5 +133,15 @@ public class MainActivity extends AppCompatActivity {
         mFragments.add(new LocalAudioPager());
         mFragments.add(new NetVideoPager());
         mFragments.add(new NetAudioPager());
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (nm != null) {
+            // 移除通知栏
+            nm.cancel(MusicPlayService.NOTIFICATION_MUSIC_CODE);
+        }
+
     }
 }

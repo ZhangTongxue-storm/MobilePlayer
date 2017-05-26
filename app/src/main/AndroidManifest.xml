@@ -36,7 +36,9 @@
             android:configChanges="keyboardHidden|screenSize|orientation"
             android:launchMode="singleTask"
             android:screenOrientation="landscape"
-            android:theme="@style/noAnimation_Theme"></activity>
+            android:theme="@style/noAnimation_Theme">
+
+        </activity>
         <activity
             android:name=".activity.SystemVideoActivity"
             android:configChanges="keyboardHidden|screenSize|orientation"
@@ -288,7 +290,17 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.MusicPlayerActivity"></activity>
+        <activity
+            android:name=".activity.MusicPlayerActivity"
+            android:launchMode="singleTask">
+
+
+        </activity>
+
+        <service android:name=".service.MusicPlayService">
+
+
+        </service>
     </application>
 
 </manifest>

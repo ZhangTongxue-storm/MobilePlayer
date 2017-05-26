@@ -7,6 +7,7 @@
     tools:context="com.storm.mobileplayer.activity.MusicPlayerActivity">
 
     <RelativeLayout
+        android:id="@+id/rl_music_top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -42,7 +43,16 @@
     </RelativeLayout>
 
 
-    <include layout="@layout/music_player_bottom" />
+    <include layout="@layout/music_player_bottom"
+        android:id="@+id/ll_music_bottom"
+        />
 
+    <com.storm.mobileplayer.custom.LyricView
+        android:layout_below="@id/rl_music_top"
+        android:layout_above="@id/ll_music_bottom"
+        android:id="@+id/lyric"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
 
 </RelativeLayout>

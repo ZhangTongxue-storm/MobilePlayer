@@ -48,7 +48,7 @@ public class TitleBar extends LinearLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
         ButterKnife.bind(this);
-        setListener();
+       // setListener();
     }
 
     private void setListener() {

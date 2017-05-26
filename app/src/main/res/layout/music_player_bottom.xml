@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/ll_bottom"
+
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
@@ -14,24 +14,26 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/tv_video_time"
+            android:id="@+id/tv_audio_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:layout_gravity="right"
             android:layout_marginRight="5dp"
             android:padding="3dp"
-            android:text="00:00/00：00"
+            android:text="00:00/00:00"
             android:textColor="@color/textcolor_controller_top"
             android:textSize="14sp" />
 
         <SeekBar
             android:id="@+id/sb_duration"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:maxHeight="3dp"
-            android:minHeight="3dp"
+            android:maxHeight="5dp"
+            android:minHeight="5dp"
+            android:progress="0"
+            android:max="100"
             android:progressDrawable="@drawable/pd_progress_music_duration"
             android:thumb="@drawable/seek_thumb" />
 
@@ -62,7 +64,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@drawable/music_playing_selector" />
+            android:background="@drawable/music_pause_selector" />
 
         <Button
             android:id="@+id/btn_next"

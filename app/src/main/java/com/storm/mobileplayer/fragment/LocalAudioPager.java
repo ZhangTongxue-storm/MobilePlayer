@@ -116,7 +116,7 @@ public class LocalAudioPager extends BaseFragment {
                         MediaStore.Audio.Media.ARTIST//演唱者
                 };
 
-                Uri uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
                 ContentResolver resolver = mContext.getContentResolver();
                 Cursor cursor = resolver.query(uri, audioTags, null, null, null);
                 if (cursor != null) {
