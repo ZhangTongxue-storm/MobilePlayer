@@ -42,17 +42,15 @@
             android:textSize="16sp" />
     </RelativeLayout>
 
-
-    <include layout="@layout/music_player_bottom"
+    <include
         android:id="@+id/ll_music_bottom"
-        />
+        layout="@layout/music_player_bottom" />
 
     <com.storm.mobileplayer.custom.LyricView
-        android:layout_below="@id/rl_music_top"
-        android:layout_above="@id/ll_music_bottom"
-        android:id="@+id/lyric"
+        android:id="@+id/lyric_show_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        />
+        android:layout_above="@id/ll_music_bottom"
+        android:layout_below="@id/rl_music_top" />
 
 </RelativeLayout>

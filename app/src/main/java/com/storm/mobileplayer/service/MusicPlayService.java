@@ -40,6 +40,7 @@ import static com.storm.mobileplayer.MyApplication.mContext;
 
 public class MusicPlayService extends Service {
 
+
     public static final int NOTIFICATION_MUSIC_CODE = 1;
 
     /**
@@ -360,6 +361,14 @@ public class MusicPlayService extends Service {
         spUtils.put("play_model", CURRENT_PLAY_MODEL);
     }
 
+    /**
+     * 获取当前歌曲文件所在的路径
+     * @return
+     */
+    public String getMusicPath() {
+        return musicBean.getData();
+    }
+
 
     @Override
     public void onCreate() {
@@ -521,6 +530,10 @@ public class MusicPlayService extends Service {
         public void seekTo(int progerss) throws RemoteException {
             service.seekTo(progerss);
 
+        }
+
+        public String getMusicPath(){
+            return musicBean.getData();
         }
     };
 

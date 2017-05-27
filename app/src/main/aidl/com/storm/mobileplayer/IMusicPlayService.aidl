@@ -91,4 +91,5 @@ interface IMusicPlayService {
      */
      void seekTo(int progerss);
 
+  String getMusicPath();
 }

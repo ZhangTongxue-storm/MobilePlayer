@@ -19,13 +19,18 @@ import com.jakewharton.rxbinding.widget.SeekBarProgressChangeEvent;
 import com.jakewharton.rxbinding.widget.SeekBarStartChangeEvent;
 import com.storm.mobileplayer.IMusicPlayService;
 import com.storm.mobileplayer.R;
+import com.storm.mobileplayer.bean.Lyric;
+import com.storm.mobileplayer.custom.LyricView;
 import com.storm.mobileplayer.service.MusicPlayService;
 import com.storm.mobileplayer.utils.LogUtils;
+import com.storm.mobileplayer.utils.LyricUtil;
 import com.storm.mobileplayer.utils.RxBus;
 import com.storm.mobileplayer.utils.TimeUtils;
 import com.trello.rxlifecycle.android.ActivityEvent;
 import com.trello.rxlifecycle.components.support.RxAppCompatActivity;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -38,6 +43,7 @@ import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
 public class MusicPlayerActivity extends RxAppCompatActivity {
+
 
     @BindView(R.id.iv_icon)
     ImageView ivIcon;
@@ -59,9 +65,11 @@ public class MusicPlayerActivity extends RxAppCompatActivity {
     Button btnNext;
     @BindView(R.id.btn_lyrics)
     Button btnLyrics;
-
+    @BindView(R.id.lyric_show_view)
+    LyricView lyricShowView;
 
     private int position; //当前的播放位置
+
 
     private IMusicPlayService service;
     private TimeUtils timeUtils;
@@ -69,7 +77,8 @@ public class MusicPlayerActivity extends RxAppCompatActivity {
     private Subscription subscribe;
     private CompositeSubscription compositeSubscription;
     private boolean notification;  // 是否为通知栏打开界面
-//    private NotificationManager nm;
+    private Subscription updateLrySub;
+    //    private NotificationManager nm;
 
 
     @Override
@@ -87,7 +96,6 @@ public class MusicPlayerActivity extends RxAppCompatActivity {
         AnimationDrawable background = (AnimationDrawable) ivIcon.getBackground();
         background.start();
         getIntentDataAndBindService();
-
         getisPlayingState();
         setListener();
 
@@ -112,7 +120,7 @@ public class MusicPlayerActivity extends RxAppCompatActivity {
             public void call(SeekBarChangeEvent seekBarChangeEvent) {
                 if (seekBarChangeEvent instanceof SeekBarStartChangeEvent) {
                     LogUtils.d("拖动手指放开的时候执行这里");
-                    setPlayingState();
+                    btnPause.setBackgroundResource(R.drawable.music_pause_selector);
                 } else if (seekBarChangeEvent instanceof SeekBarProgressChangeEvent) {
                     SeekBarProgressChangeEvent seekBarChangeEvent1 = (SeekBarProgressChangeEvent) seekBarChangeEvent;
                     if (seekBarChangeEvent1.fromUser()) {
@@ -132,7 +140,7 @@ public class MusicPlayerActivity extends RxAppCompatActivity {
         });
 
 
-          compositeSubscription.add(seekToSub);
+        compositeSubscription.add(seekToSub);
 
         // 关于
         RxView.clicks(btnPre)
@@ -278,10 +286,10 @@ public class MusicPlayerActivity extends RxAppCompatActivity {
 
         position = getIntent().getIntExtra("position", 0);
         notification = getIntent().getBooleanExtra("notification", false);
-//        nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//       nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 //
-        Intent intent = new Intent(MusicPlayerActivity.this, MusicPlayService.class);
 
+        Intent intent = new Intent(MusicPlayerActivity.this, MusicPlayService.class);
         // 绑定并且实例化 start 避免重复创建
         bindService(intent, conn, BIND_AUTO_CREATE);
         startService(intent);
@@ -334,11 +342,70 @@ public class MusicPlayerActivity extends RxAppCompatActivity {
             tvMusicName.setText(musicName);
             tvArtist.setText(artist);
             sbDuration.setMax(service.getDuration());
+            loadingLyrics();
             updateDuration();
+
 
         } catch (RemoteException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 加载歌词
+     */
+    private void loadingLyrics() throws RemoteException {
+
+        String lyricPath = service.getMusicPath();
+        // 获取歌词的路径
+        lyricPath = lyricPath.substring(0, lyricPath.lastIndexOf("."));
+
+        File file = new File(lyricPath + ".lrc");
+        if (!file.exists()) {
+            file = new File(lyricPath + ".txt");
+        }
+
+        LyricUtil lyricUtil = new LyricUtil();
+        lyricUtil.read(file);
+
+        //LogUtils.d("获取的各台词 ----------" + lyricUtil.getLyrics().size());
+        ArrayList<Lyric> lyrics = lyricUtil.getLyrics();
+        // LogUtils.d("获取的各台词 ----------" + lyrics.size());
+
+        if(lyricUtil.isLyric()) {
+            lyricShowView.setLyrics(lyrics);
+            updateLyrics();
+        }
+
+    }
+
+    /**
+     * 更新歌词
+     */
+    private void updateLyrics()  {
+        updateLrySub = Observable.interval(0,1, TimeUnit.SECONDS, Schedulers.io())
+                .compose(this.bindUntilEvent(ActivityEvent.DESTROY))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Object>() {
+                    @Override
+                    public void call(Object o) {
+
+                        LogUtils.d("持续的发送事件");
+
+                        try {
+                            if (service.isPlaying()) {
+                                int currentDuration = service.currentDuration();
+                                lyricShowView.setNextShowLyric(currentDuration);
+                            }
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
+
+
+                    }
+                });
+        compositeSubscription.add(updateLrySub);
+
     }
 
     //更新seek
